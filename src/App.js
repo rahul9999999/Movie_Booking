@@ -1,42 +1,58 @@
-import React from 'react';
-import {
-  ChakraProvider,
-  Box,
-  Text,
-  Link,
-  VStack,
-  Code,
-  Grid,
-  theme,
-} from '@chakra-ui/react';
-import { ColorModeSwitcher } from './ColorModeSwitcher';
-import { Logo } from './Logo';
+import Home from './components/Home'
+import Header from './components/Header'
+import ShowData from './components/ShowData'
+import { Route,BrowserRouter as Router, Routes } from 'react-router-dom'
+import Footer from './components/Footer'
+import Summary from './components/Summary'
+// import Loader from '../components/Loader'
+import { useEffect, useState } from 'react'
+const API = "https://api.tvmaze.com/search/shows?q=all"
 
-function App() {
+const App = () => {
+  const [shows, setShows] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchShows = async (url) => {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      setLoading(false)
+
+      if (data.length > 0) {
+        setShows(data);
+
+      }
+      // console.log(data)
+
+
+    } catch (e) {
+      console.log(e)
+      setLoading(false)
+
+    }
+  }
+  
+  
+  useEffect(() => {
+    fetchShows(API);
+
+  }, [])
+  // console.log(shows)
+  
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
-            <Logo h="40vmin" pointerEvents="none" />
-            <Text>
-              Edit <Code fontSize="xl">src/App.js</Code> and save to reload.
-            </Text>
-            <Link
-              color="teal.500"
-              href="https://chakra-ui.com"
-              fontSize="2xl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn Chakra
-            </Link>
-          </VStack>
-        </Grid>
-      </Box>
-    </ChakraProvider>
-  );
+    <Router>
+      <Header/>
+      <Routes>
+        <Route  path='/home' element={<Home/>}/>
+        <Route  path='/showdata' element={<ShowData shows={shows}/>}/>
+        <Route  path='/summary' element={<Summary />}/>
+      </Routes>
+      <Footer/>
+    </Router>
+    
+
+)
 }
 
-export default App;
+export default App
+
